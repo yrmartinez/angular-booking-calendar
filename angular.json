@@ -121,6 +121,46 @@
           }
         }
       }
+    },
+    "angular-booking-calendar": {
+      "root": "projects/angular-booking-calendar",
+      "sourceRoot": "projects/angular-booking-calendar/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/angular-booking-calendar/tsconfig.lib.json",
+            "project": "projects/angular-booking-calendar/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/angular-booking-calendar/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/angular-booking-calendar/src/test.ts",
+            "tsConfig": "projects/angular-booking-calendar/tsconfig.spec.json",
+            "karmaConfig": "projects/angular-booking-calendar/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/angular-booking-calendar/tsconfig.lib.json",
+              "projects/angular-booking-calendar/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "booking-calendar"

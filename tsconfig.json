@@ -16,6 +16,14 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "paths": {
+      "angular-booking-calendar": [
+        "dist/angular-booking-calendar"
+      ],
+      "angular-booking-calendar/*": [
+        "dist/angular-booking-calendar/*"
+      ]
+    }
   }
 }

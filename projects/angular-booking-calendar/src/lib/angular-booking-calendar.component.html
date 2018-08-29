@@ -1,0 +1,27 @@
+<div class="multiple-date-picker">
+  <div class="picker-top-row">
+    <div class="text-center picker-navigate picker-navigate-left-arrow" [ngClass]="{'disabled':disableBackButton}" (click)="changeMonth($event, disableBackButton, -1)">&lt;</div>
+    <div class="text-center picker-month">
+      <span *ngIf="!enableSelectMonth" class="month-year">{{monthToDisplay}}</span>
+      <select *ngIf="enableSelectMonth" [(ngModel)]="select.month" (change)="changeMonthBySelect(select.month)">
+        <option *ngFor="let m of monthsForSelect" [ngValue]="m">
+            {{ m }}
+        </option>
+      </select>&nbsp;
+      <span *ngIf="yearsForSelect.length < 2" class="month-year">{{yearToDisplay}}</span>
+      <select *ngIf="yearsForSelect.length > 1" [(ngModel)]="select.year" (change)="changeYear(select.year)">
+        <option *ngFor="let y of yearsForSelect" [ngValue]="y">
+            {{ y }}
+        </option>
+      </select>
+    </div>
+    <div class="text-center picker-navigate picker-navigate-right-arrow" [ngClass]="{'disabled':disableNextButton}" (click)="changeMonth($event, disableNextButton, 1)">&gt;</div>
+  </div>
+  <div class="picker-days-week-row">
+    <div class="text-center" *ngFor="let day of daysOfWeek">{{day}}</div>
+  </div>
+  <div class="picker-days-row">
+    <div class="text-center picker-day {{getDayClasses(day)}}" title="{{day.title}}" *ngFor="let day of days" (click)="toggleDay($event, day)"
+      (mouseover)="hoverDay($event, day)" (mouseleave)="leaveDay($event, day)">{{day ? day.mdp.otherMonth && !showDaysOfSurroundingMonths ? '&nbsp;' : day.date.format('D') : ''}}</div>
+  </div>
+</div>
