@@ -443,4 +443,11 @@ export class AngularBookingCalendarComponent implements OnInit {
           .forEach(day => this.toggleDay(null, day));
     this.checkToggleMonthText();
   }
+
+  toggleAllWeekDays(day) {
+    const currentWeekDay = moment().isoWeekday(day);
+    this.days.filter(d => d.date.weekday() === currentWeekDay.weekday()).forEach(d => {
+      this.toggleDay(null, d);
+    });
+  }
 }
