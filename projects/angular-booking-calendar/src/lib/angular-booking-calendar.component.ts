@@ -48,10 +48,6 @@ export class AngularBookingCalendarComponent implements OnInit {
   disableDaysAfter: any;
   @Input()
   allDaysOff = false;
-  /*
-  * Type: any type moment can parse
-  * If filled will disable all days before this one (not included)
-  * */
   @Input()
   disableDaysBefore: any;
   @Input()
@@ -343,8 +339,6 @@ export class AngularBookingCalendarComponent implements OnInit {
         }
       }
     }
-
-        // this.days = this.initDays();
   }
 
   hoverDay(event, day) {
