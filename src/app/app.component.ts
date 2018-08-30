@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'booking-calendar';
+  myDays: any[] = [];
+
+  logDays() {
+    console.log(this.myDays);
+  }
 }

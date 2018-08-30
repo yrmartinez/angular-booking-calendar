@@ -9,10 +9,10 @@ const moment = moment_;
 })
 export class AngularBookingCalendarComponent implements OnInit {
   monthToDisplay: string;
-  month: any;
+  month: moment_.Moment;
   days = [];
   @Input()
-  weekDaysOff: any[] = [];
+  weekDaysOff: number[] = [];
   @Input()
   daysOff: any[] = [];
   @Input()
@@ -55,13 +55,21 @@ export class AngularBookingCalendarComponent implements OnInit {
   @Input()
   disallowGoFuturMonths = false;
   previousDay: moment_.Moment;
-  @Input() disableNavigation: boolean;
+  @Input()
+  disableNavigation: boolean;
   isMousePressed = false;
   isFirstClick = true;
+  toogleMonthText: string;
+  @Input()
+  blockAllMonthText: string;
+  @Input()
+  unblockAllMonthText: string;
+  @Input()
+  oneYearOnly = false;
+  isMonthBlocked = false;
   constructor() {}
 
   ngOnInit() {
-
     const self = this;
     document.body.onmousedown = function() {
       self.isMousePressed = true;
@@ -81,9 +89,28 @@ export class AngularBookingCalendarComponent implements OnInit {
     this.monthsForSelect = moment.months();
     this.yearsForSelect = this.getYearsForSelect();
     this.days = this.initDays();
+    this.checkToggleMonthText();
   }
 
-  createDate() {
+  checkToggleMonthText(): any {
+    if (
+      this.days
+        .filter(d => d.selectable && !d.mdp.otherMonth)
+        .every(d => d.mdp.selected && d.selectable && !d.mdp.otherMonth)
+    ) {
+      this.toogleMonthText = this.unblockAllMonthText
+        ? this.unblockAllMonthText
+        : 'Unblock this Month';
+      this.isMonthBlocked = true;
+    } else {
+      this.toogleMonthText = this.blockAllMonthText
+        ? this.blockAllMonthText
+        : 'Block this Month';
+      this.isMonthBlocked = false;
+    }
+  }
+
+  createDate(defaultSelected = false) {
     const now = moment();
 
     const day = {
@@ -107,7 +134,8 @@ export class AngularBookingCalendarComponent implements OnInit {
       day.title = hlDay.length > 0 ? hlDay[0].title : '';
     }
     day.selectable = !this.isDayOff(day);
-    day.mdp.selected = this.isSelected(day);
+    day.mdp.selected =
+      day.selectable && (this.isSelected(day) || defaultSelected);
     day.mdp.today = day.date.isSame(now, 'day');
     day.mdp.past = day.date.isBefore(now, 'day');
     day.mdp.future = day.date.isAfter(now, 'day');
@@ -123,7 +151,7 @@ export class AngularBookingCalendarComponent implements OnInit {
     });
   }
 
-  initDays(): any[] {
+  initDays(defaultSelected = false): any[] {
     this.previousDay = moment(this.month)
       .date(0)
       .day(this.sundayFirstDay ? 0 : 1)
@@ -139,7 +167,7 @@ export class AngularBookingCalendarComponent implements OnInit {
     }
 
     for (let j = 0; j < maxDays; j++) {
-      days.push(this.createDate());
+      days.push(this.createDate(defaultSelected));
     }
     this.checkNavigationButtons();
     return days;
@@ -242,6 +270,8 @@ export class AngularBookingCalendarComponent implements OnInit {
 
     this.monthToDisplay = this.getMonthYearToDisplay();
 
+    this.yearToDisplay = this.month.format('YYYY');
+
     this.days = this.initDays();
 
     if (typeof this.monthClick === 'function') {
@@ -251,6 +281,8 @@ export class AngularBookingCalendarComponent implements OnInit {
     if (!prevented) {
       this.updateMonth(monthTo);
     }
+
+    this.checkToggleMonthText();
   }
 
   changeMonthBySelect(monthName) {
@@ -295,27 +327,26 @@ export class AngularBookingCalendarComponent implements OnInit {
     if (day.mdp.otherMonth) {
       css += ' picker-other-month';
     }
+    if (day.date.weekday() === 0) {
+      css += ' sunday';
+    }
     return css;
   }
 
-  toggleDay(event, day) {
-    event.preventDefault();
+  isSunday (day): boolean {
+    return moment().isoWeekday(day).weekday() === 0;
+  }
 
+  toggleDay(event, day) {
     if (day.mdp.otherMonth && !this.fireEventsForDaysOfSurroundingMonths) {
       return;
     }
-
-    let prevented = false;
-
-    event.preventDefault = function() {
-      prevented = true;
-    };
 
     if (typeof this.dayClick === 'function') {
       this.dayClick(event, day);
     }
 
-    if (day.selectable && !prevented) {
+    if (day.selectable) {
       day.mdp.selected = !day.mdp.selected;
       if (day.mdp.selected) {
         this.highlightDays.push(day);
@@ -393,10 +424,23 @@ export class AngularBookingCalendarComponent implements OnInit {
       previousMonth = moment(this.month).subtract(1, 'month'),
       nextMonth = moment(this.month).add(1, 'month');
     this.disableBackButton =
-    this.disableNavigation ||
-      (this.disallowBackPastMonths && today.isAfter(previousMonth, 'month'));
-      this.disableNextButton =
       this.disableNavigation ||
-      (this.disallowGoFuturMonths && today.isBefore(nextMonth, 'month'));
+      (this.disallowBackPastMonths && today.isAfter(previousMonth, 'month')) ||
+      (this.oneYearOnly && this.month.month() === 0);
+    this.disableNextButton =
+      this.disableNavigation ||
+      (this.disallowGoFuturMonths && today.isBefore(nextMonth, 'month')) ||
+      (this.oneYearOnly && this.month.month() === 11);
+  }
+
+  blockCurrentMonth() {
+    this.isMonthBlocked
+      ? this.days
+          .filter(d => !d.mdp.otherMonth && d.mdp.selected)
+          .forEach(day => this.toggleDay(null, day))
+      : this.days
+          .filter(d => d.selectable && !d.mdp.otherMonth && !d.mdp.selected)
+          .forEach(day => this.toggleDay(null, day));
+    this.checkToggleMonthText();
   }
 }

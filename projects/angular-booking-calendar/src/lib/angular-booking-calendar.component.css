@@ -246,6 +246,10 @@ fieldset[disabled] .btn {
   color: #00a3ff
 }
 
+.sunday {
+  color: #ee0c0c !important
+}
+
 .picker-day:not(.picker-off) {
   cursor: pointer;
 }
