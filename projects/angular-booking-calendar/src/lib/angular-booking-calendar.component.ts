@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as moment_ from 'moment';
 
 const moment = moment_;
+
 @Component({
   selector: 'lib-angular-booking-calendar',
   templateUrl: 'angular-booking-calendar.component.html',
@@ -31,13 +32,13 @@ export class AngularBookingCalendarComponent implements OnInit {
   @Input()
   changeYearFuture: number;
   monthClick: any;
-  monthChanged: any;
+  @Output() monthChanged: EventEmitter<any> = new EventEmitter();
   select: any = {};
   @Input()
   showDaysOfSurroundingMonths = false;
   @Input()
   fireEventsForDaysOfSurroundingMonths = false;
-  @Output() dayClick: EventEmitter<moment_.Moment> = new EventEmitter<moment_.Moment>();
+  @Output() dayClick: EventEmitter<any> = new EventEmitter<any>();
   @Input()
   enableSelectMonth: boolean;
   @Input()
@@ -76,6 +77,11 @@ export class AngularBookingCalendarComponent implements OnInit {
     };
 
     document.body.onmouseup = function() {
+      self.isMousePressed = false;
+      self.isFirstClick = true;
+    };
+
+    document.body.onmouseleave = function() {
       self.isMousePressed = false;
       self.isFirstClick = true;
     };
@@ -296,9 +302,7 @@ export class AngularBookingCalendarComponent implements OnInit {
 
     this.days = this.initDays();
 
-    if (typeof this.monthChanged === 'function') {
-      this.monthChanged(this.month, oldMonth);
-    }
+    this.monthChanged.emit({month: this.month, oldMonth: oldMonth});
   }
 
   getDayClasses(day) {
@@ -345,8 +349,7 @@ export class AngularBookingCalendarComponent implements OnInit {
     }
 
     if (event.type === 'click') {
-      console.log(event.type);
-      this.dayClick.emit(day);
+      this.dayClick.emit(day.date);
     }
 
     if (day.selectable) {

@@ -33,4 +33,12 @@ export class AppComponent implements OnInit {
       }
     ];
   }
+
+  dayClickEvent(event) {
+    console.log(event);
+  }
+
+  monthChangedEvent(event) {
+    console.log(event);
+  }
 }
