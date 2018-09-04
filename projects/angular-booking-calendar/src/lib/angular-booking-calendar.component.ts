@@ -342,13 +342,13 @@ export class AngularBookingCalendarComponent implements OnInit {
   }
 
   toggleDay(event, day) {
-    event.preventDefault();
+    if (event !== null) { event.preventDefault(); }
 
     if (day.mdp.otherMonth && !this.fireEventsForDaysOfSurroundingMonths) {
       return;
     }
 
-    if (event.type === 'click') {
+    if (event !== null && event.type === 'click') {
       this.dayClick.emit(day.date);
     }
 
