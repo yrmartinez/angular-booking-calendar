@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as moment_ from 'moment';
 
 const moment = moment_;
@@ -37,7 +37,7 @@ export class AngularBookingCalendarComponent implements OnInit {
   showDaysOfSurroundingMonths = false;
   @Input()
   fireEventsForDaysOfSurroundingMonths = false;
-  dayClick: any;
+  @Output() dayClick: EventEmitter<moment_.Moment> = new EventEmitter<moment_.Moment>();
   @Input()
   enableSelectMonth: boolean;
   @Input()
@@ -338,12 +338,15 @@ export class AngularBookingCalendarComponent implements OnInit {
   }
 
   toggleDay(event, day) {
+    event.preventDefault();
+
     if (day.mdp.otherMonth && !this.fireEventsForDaysOfSurroundingMonths) {
       return;
     }
 
-    if (typeof this.dayClick === 'function') {
-      this.dayClick(event, day);
+    if (event.type === 'click') {
+      console.log(event.type);
+      this.dayClick.emit(day);
     }
 
     if (day.selectable) {
@@ -366,6 +369,7 @@ export class AngularBookingCalendarComponent implements OnInit {
           }
         }
         if (idx !== -1) {
+          day.title = '';
           this.highlightDays.splice(idx, 1);
         }
       }
@@ -384,9 +388,7 @@ export class AngularBookingCalendarComponent implements OnInit {
       prevented = true;
     };
 
-    if (typeof this.dayHover === 'function') {
-      this.dayHover(event, day);
-    }
+    this.dayHover(event, day);
 
     if (!prevented) {
       day.mdp.hover = event.type === 'mouseover';
@@ -442,12 +444,5 @@ export class AngularBookingCalendarComponent implements OnInit {
           .filter(d => d.selectable && !d.mdp.otherMonth && !d.mdp.selected)
           .forEach(day => this.toggleDay(null, day));
     this.checkToggleMonthText();
-  }
-
-  toggleAllWeekDays(day) {
-    const currentWeekDay = moment().isoWeekday(day);
-    this.days.filter(d => d.date.weekday() === currentWeekDay.weekday()).forEach(d => {
-      this.toggleDay(null, d);
-    });
   }
 }
